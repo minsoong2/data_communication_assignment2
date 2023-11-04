@@ -2,20 +2,20 @@ import socket
 import threading
 import random
 import time
-
+import numpy as np
 
 ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
-server_operating_time = 60
+round = 100
 total_sum = 0
 f = open("Server.txt", "w")
 
 
 def update_system_clock():
     global system_clock
-    while system_clock < server_operating_time:
+    while system_clock < round:
         time.sleep(1)
         system_clock += 1
 
@@ -23,7 +23,7 @@ def update_system_clock():
 def handle_client(client_socket):
     global system_clock
     try:
-        while system_clock < server_operating_time:
+        while system_clock < round:
             system_clock += 1
     except Exception as e:
         e_line = f"Error: {e}"
@@ -50,8 +50,8 @@ def main():
 
     client_count = 0
 
-    while system_clock < server_operating_time:
-        if system_clock >= server_operating_time:
+    while system_clock < round:
+        if system_clock >= round:
             break
         try:
             client_socket, client_address = server.accept()

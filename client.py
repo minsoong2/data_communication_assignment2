@@ -17,6 +17,7 @@ def client(client_id):
 
     try:
         with open(f"Client{client_id}.txt", "w") as f:
+            print("!!!")
 
     except ConnectionResetError:
         with open(f"Client{client_id}.txt", "w") as f:
@@ -27,6 +28,7 @@ def client(client_id):
         pass
     finally:
         client_socket.close()
+
 
 if __name__ == "__main__":
     client_threads = []
