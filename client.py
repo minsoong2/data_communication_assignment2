@@ -60,29 +60,36 @@ def client(c_id):
             client_socket.send(col_data_str.encode())
 
         else:
+
             if client_id in data and "Send data -> Row1, Col1:" in data:
                 print(client_id, data)
                 print()
-                numbers_str = re.findall(r'Send data -> Row1, Col1:\s+(.*)$', data)
-                print(numbers_str)
-                if numbers_str:
-                    numbers_str = numbers_str[0]
-                    numbers_list = [int(num) for num in numbers_str.split()]
-                    row_col_1.append(numbers_list)
+                numbers_string1 = re.findall(r'Send data -> Row1, Col1:\s+(.*)$', data)
+                if numbers_string1:
+                    numbers_string1 = numbers_string1[0]
+                    numbers_list = numbers_string1.split(',')
+                    row1 = [int(num) for num in numbers_list[0].strip("[]").split()]
+                    col1 = [int(num) for num in numbers_list[1].strip("[] ").split()]
+                    print(row1, col1)
+                    row_col_1.append(row1)
+                    row_col_1.append(col1)
+                    result_non_selected_client1 = perform_vector_multiplication(row_col_1[0], row_col_1[1])
+                    print(result_non_selected_client1, "!@##@$!@#$")
 
             elif client_id in data and "Send data -> Row2, Col2:" in data:
                 print(client_id, data)
                 print()
-                numbers_str = re.findall(r'Row1:\s+(.*)$', data)
-                if numbers_str:
-                    numbers_str = numbers_str[0]
-                    numbers_list = [int(num) for num in numbers_str.split()]
-                    row_col_1.append(numbers_list)
-
-        # print(len(row_col_1), row_col_1)
-        # print(len(row_col_2), row_col_2)
-        # result_non_selected_client1 = perform_vector_multiplication(row_col_1[0], row_col_1[1])
-        # result_non_selected_client2 = perform_vector_multiplication(row_col_2[0], row_col_2[1])
+                numbers_string2 = re.findall(r'Send data -> Row2, Col2:\s+(.*)$', data)
+                if numbers_string2:
+                    numbers_string2 = numbers_string2[0]
+                    numbers_list = numbers_string2.split(',')
+                    row2 = [int(num) for num in numbers_list[0].strip("[]").split()]
+                    col2 = [int(num) for num in numbers_list[1].strip("[] ").split()]
+                    print(row2, col2)
+                    row_col_2.append(row2)
+                    row_col_2.append(col2)
+                    result_non_selected_client2 = perform_vector_multiplication(row_col_2[0], row_col_2[1])
+                    print(result_non_selected_client2, "!@##@$!@#$")
 
     except ConnectionResetError:
         e_line = f"Client {client_socket.getsockname()[1]}: Connection to the server was forcibly closed."
