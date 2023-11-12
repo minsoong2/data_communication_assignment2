@@ -86,9 +86,11 @@ def handle_client(round_number, select_client_list_idx):
                 c_socket.send(send_row_col_data1.encode())
                 result_matrix1 = c_socket.recv(1024).decode()
                 print(result_matrix1)
+                f.write(result_matrix1)
                 result_number = int(result_matrix1.split(':')[-1].strip())
                 matrices[select_client_list_idx][rows[0]][cols[0]] = result_number
                 print(matrices)
+
             elif idx == non_selected_clients[1] - 1:
                 send_row_col_data2 = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row2, Col2: [{data_row2}], [{data_col2}]"
                 print(send_row_col_data2)
@@ -96,9 +98,17 @@ def handle_client(round_number, select_client_list_idx):
                 f.write(send_row_col_data2)
                 result_matrix2 = c_socket.recv(1024).decode()
                 print(result_matrix2)
+                f.write(result_matrix2)
                 result_number = int(result_matrix2.split(':')[-1].strip())
                 matrices[select_client_list_idx][rows[1]][cols[1]] = result_number
                 print(matrices)
+
+            for matrix in matrices:
+                for row in matrix:
+                    row_str = " ".join(map(str, row))
+                    f.write(row_str + "\n")
+                f.write("\n")
+
 
     except Exception as e:
         emsg = f"Error: {e}"
