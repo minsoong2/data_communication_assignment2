@@ -68,6 +68,7 @@ def client(c_idx):
                     client_matrix = generate_random_matrix()
                     col_msg = f"Client {client_socket.getsockname()[1]} matrix: "
                     print(col_msg, client_matrix)
+                    f.write(col_msg + '\n')
                     for line in client_matrix:
                         f.write(' '.join(map(str, line)) + '\n')
                     col_data = client_matrix[:, col_indices[0]]
@@ -96,7 +97,7 @@ def client(c_idx):
                     row_col_1.append(col1)
                     result_msg_non_selected_client1 = f"{round_cid} result: {perform_vector_multiplication(row_col_1[0], row_col_1[1])}"
                     print(result_msg_non_selected_client1)
-                    f.write(result_msg_non_selected_client1)
+                    f.write(result_msg_non_selected_client1 + '\n')
                     client_socket.send(result_msg_non_selected_client1.encode())
 
                 elif client_id in data and "Send data -> Row2, Col2:" in data:
@@ -129,7 +130,7 @@ def client(c_idx):
         finally:
             msg = f"Client {client_socket.getsockname()[1]}: Connection closed"
             print(msg)
-            f.write(msg + '\n')
+            f.write(msg + '\n\n')
             client_socket.close()
 
 

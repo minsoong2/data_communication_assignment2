@@ -92,7 +92,7 @@ def handle_client(round_number, select_client_list_idx):
         client_semaphore.release()
 
 
-def accept_4clients_connection():
+def main():
     global server, client_accept_cnt
 
     server.listen(4)
@@ -110,11 +110,6 @@ def accept_4clients_connection():
         f.write(accept + '\n')
         client_sockets.append(client_socket)
         client_accept_cnt += 1
-
-
-def main():
-
-    accept_4clients_connection()
 
     clock_thread = threading.Thread(target=update_system_clock)
     clock_thread.daemon = True
