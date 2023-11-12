@@ -30,7 +30,13 @@ def client():
 
     try:
         while True:
-            data = client_socket.recv(1024).decode()
+            try:
+                data = client_socket.recv(1024).decode()
+                if not data:
+                    break
+            except socket.timeout:
+                print(f"Client {client_socket.getsockname()[1]}: Timed out while waiting for data. Breaking the loop.")
+                break
             client_id = f"{client_socket.getsockname()[1]}"
             row_col_1, row_col_2 = [], []
 
@@ -45,7 +51,6 @@ def client():
                 row_data_2 = client_matrix[row_indices[1]]
                 row_data_str = f"Client {client_socket.getsockname()[1]} - Row: {' '.join(map(str, row_data))}, {' '.join(map(str, row_data_2))}"
                 print(row_data_str)
-                # time.sleep(1)
                 client_socket.send(row_data_str.encode())
 
             elif client_id in data and "Request idx_data -> Col" in data:
@@ -59,7 +64,6 @@ def client():
                 col_data_2 = client_matrix[:, col_indices[1]]
                 col_data_str = f"Client {client_socket.getsockname()[1]} - Col: {' '.join(map(str, col_data))}, {' '.join(map(str, col_data_2))}"
                 print(col_data_str)
-                # time.sleep(1)
                 client_socket.send(col_data_str.encode())
 
             elif client_id in data and "Send data -> Row1, Col1:" in data:
@@ -78,7 +82,6 @@ def client():
                 row_col_1.append(col1)
                 result_non_selected_client1 = f"{round_cid} result: {perform_vector_multiplication(row_col_1[0], row_col_1[1])}"
                 print(result_non_selected_client1)
-                # time.sleep(1)
                 client_socket.send(result_non_selected_client1.encode())
 
             elif client_id in data and "Send data -> Row2, Col2:" in data:
@@ -97,11 +100,9 @@ def client():
                 row_col_2.append(col2)
                 result_non_selected_client2 = f"{round_cid} result: {perform_vector_multiplication(row_col_2[0], row_col_2[1])}"
                 print(result_non_selected_client2)
-                # time.sleep(1)
                 client_socket.send(result_non_selected_client2.encode())
 
-            elif "end" in data:
-                break
+            #time.sleep(1)
 
     except ConnectionResetError:
         e_line = f"Client {client_socket.getsockname()[1]}: Connection to the server was forcibly closed."
@@ -122,8 +123,7 @@ if __name__ == "__main__":
 
     for thread in client_threads:
         thread.start()
-        print(thread, "start!!!")
 
     for thread in client_threads:
-        print(thread)
         thread.join()
+        print(thread)

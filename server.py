@@ -3,26 +3,22 @@ import threading
 import random
 import time
 import numpy as np
-from concurrent.futures import ThreadPoolExecutor
 
 ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
-Round_MAX = 100
+Round_MAX = 2
 matrices = [np.zeros((10, 10)) for _ in range(6)]
 
 MAX_CLIENTS = 4
-client_accept_cnt = 1
+client_accept_cnt = 0
 client_sockets = []
 client_list = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
 client_semaphore = threading.Semaphore(1)
 
-server_semaphore = threading.Semaphore(1)
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((ip, port))
-server.listen(4)
-
 
 f = open("Server.txt", "w")
 
@@ -88,60 +84,70 @@ def handle_client(round_number, select_client_list_idx):
                 print(result_matrix2)
 
         system_clock += 1
-
-        client_semaphore.release()
-
     except Exception as e:
         e_line = f"Error: {e}"
         print(e_line)
         f.write(e_line + '\n')
+    finally:
+        client_semaphore.release()
 
 
 def accept_4clients_connection():
     global server, client_accept_cnt
 
-    if client_accept_cnt == 1:
+    server.listen(4)
+    server.settimeout(10)
+
+    if client_accept_cnt == 0:
         listen = "Server is listening..."
         print(listen)
         f.write(listen + '\n')
 
-    client_threads = []
-
-    if client_accept_cnt <= 4:
-        while len(client_threads) < 4:
-            client_socket, client_address = server.accept()
-            accept = f"Accepted connection from {client_address}"
-            print(accept)
-            f.write(accept + '\n')
-
-            client_handler = threading.Thread(target=handle_client)
-            client_threads.append(client_handler)
-            client_sockets.append(client_socket)
-            client_accept_cnt += 1
-    else:
-        for _ in range(len(client_sockets)):
-            client_handler = threading.Thread(target=handle_client)
-            client_threads.append(client_handler)
+    while client_accept_cnt < MAX_CLIENTS:
+        client_socket, client_address = server.accept()
+        accept = f"Accepted connection from {client_address}"
+        print(accept)
+        f.write(accept + '\n')
+        client_sockets.append(client_socket)
+        client_accept_cnt += 1
 
 
 def main():
-    server_threads = []
 
     accept_4clients_connection()
 
-    for cnt in range(1, Round_MAX + 1):
-        for idx in range(6):
-            server_thread = threading.Thread(target=handle_client, args=(cnt, idx))
-            server_threads.append(server_thread)
+    clock_thread = threading.Thread(target=update_system_clock)
+    clock_thread.daemon = True
+    clock_thread.start()
 
-    for thread in server_threads:
-        thread.start()
-        print(thread, "start!!!")
-        thread.join()
-        print(thread)
+    try:
 
-    for client in client_sockets:
-        client.send("end".encode())
+        for cnt in range(1, Round_MAX + 1):
+            server_threads = []
+            for idx in range(6):
+                server_thread = threading.Thread(target=handle_client, args=(cnt, idx))
+                server_threads.append(server_thread)
+
+            for thread in server_threads:
+                thread.start()
+                print(thread)
+
+            for thread in server_threads:
+                thread.join()
+                print(thread)
+
+    except socket.timeout:
+        pass
+
+    for client_socket in client_sockets:
+        try:
+            client_socket.close()
+        except Exception as e:
+            print(f"Error while closing client socket: {e}")
+
+    print_system_clock = f"end_time: {system_clock}"
+    print(print_system_clock)
+    f.write(print_system_clock)
 
     server.close()
     print("Server closed...")
