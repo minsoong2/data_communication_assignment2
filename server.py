@@ -8,7 +8,7 @@ ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
-Round_MAX = 3#00
+Round_MAX = 1#00
 matrices = [np.zeros((10, 10)) for _ in range(6)]
 
 MAX_CLIENTS = 4
@@ -36,6 +36,7 @@ def handle_client(round_number, select_client_list_idx):
     try:
         client_semaphore.acquire()
         matrices = [np.zeros((10, 10)) for _ in range(6)]
+        print(matrices)
         clients = client_list[select_client_list_idx]
         non_selected_clients = [c for c in range(1, 5) if c not in clients]
         rows = [random.randint(0, 9) for _ in range(2)]
