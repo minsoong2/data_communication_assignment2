@@ -7,7 +7,7 @@ ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
-Round_MAX = 3#00
+Round_MAX = 100
 
 MAX_CLIENTS = 4
 new_procession = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
