@@ -23,7 +23,7 @@ def perform_vector_multiplication(row_vector, col_vector):
         return None
 
 
-def client(c_id):
+def client():
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((server_ip, server_port))
     print(f"Client {client_socket.getsockname()[1]}: Connected to the server")
@@ -31,7 +31,6 @@ def client(c_id):
     try:
         while True:
             data = client_socket.recv(1024).decode()
-            print(f"{client_socket.getsockname()[1]}", data)
             client_id = f"{client_socket.getsockname()[1]}"
             row_col_1, row_col_2 = [], []
 
@@ -46,7 +45,7 @@ def client(c_id):
                 row_data_2 = client_matrix[row_indices[1]]
                 row_data_str = f"Client {client_socket.getsockname()[1]} - Row: {' '.join(map(str, row_data))}, {' '.join(map(str, row_data_2))}"
                 print(row_data_str)
-                time.sleep(1)
+                # time.sleep(1)
                 client_socket.send(row_data_str.encode())
 
             elif client_id in data and "Request idx_data -> Col" in data:
@@ -60,7 +59,7 @@ def client(c_id):
                 col_data_2 = client_matrix[:, col_indices[1]]
                 col_data_str = f"Client {client_socket.getsockname()[1]} - Col: {' '.join(map(str, col_data))}, {' '.join(map(str, col_data_2))}"
                 print(col_data_str)
-                time.sleep(1)
+                # time.sleep(1)
                 client_socket.send(col_data_str.encode())
 
             elif client_id in data and "Send data -> Row1, Col1:" in data:
@@ -79,7 +78,7 @@ def client(c_id):
                 row_col_1.append(col1)
                 result_non_selected_client1 = f"{round_cid} result: {perform_vector_multiplication(row_col_1[0], row_col_1[1])}"
                 print(result_non_selected_client1)
-                time.sleep(1)
+                # time.sleep(1)
                 client_socket.send(result_non_selected_client1.encode())
 
             elif client_id in data and "Send data -> Row2, Col2:" in data:
@@ -98,7 +97,7 @@ def client(c_id):
                 row_col_2.append(col2)
                 result_non_selected_client2 = f"{round_cid} result: {perform_vector_multiplication(row_col_2[0], row_col_2[1])}"
                 print(result_non_selected_client2)
-                time.sleep(1)
+                # time.sleep(1)
                 client_socket.send(result_non_selected_client2.encode())
 
             elif "end" in data:
@@ -117,8 +116,8 @@ def client(c_id):
 if __name__ == "__main__":
     client_threads = []
 
-    for i in range(1, 5):
-        client_thread = threading.Thread(target=client, args=(i,))
+    for _ in range(1, 5):
+        client_thread = threading.Thread(target=client)
         client_threads.append(client_thread)
 
     for thread in client_threads:
@@ -126,5 +125,5 @@ if __name__ == "__main__":
         print(thread, "start!!!")
 
     for thread in client_threads:
-        thread.join()
         print(thread)
+        thread.join()
