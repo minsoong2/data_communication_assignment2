@@ -3,15 +3,25 @@ import threading
 import random
 import time
 import numpy as np
+import re
 
 ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
 Round_MAX = 1#00
-matrices = [np.zeros((10, 10)) for _ in range(6)]
 
 MAX_CLIENTS = 4
+new_procession = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 client_accept_cnt = 0
 client_sockets = []
 client_list = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
@@ -19,7 +29,6 @@ client_semaphore = threading.Semaphore(1)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((ip, port))
-
 f = open("Server.txt", "w")
 
 
@@ -32,15 +41,16 @@ def update_system_clock():
 
 def handle_client(round_number, select_client_list_idx):
 
-    global server, matrices, client_semaphore
+    global client_semaphore
     try:
         client_semaphore.acquire()
-        matrices = [np.zeros((10, 10)) for _ in range(6)]
-        print(matrices)
+        matrices = [[line[:] for line in new_procession] for _ in range(6)]
         clients = client_list[select_client_list_idx]
         non_selected_clients = [c for c in range(1, 5) if c not in clients]
         rows = [random.randint(0, 9) for _ in range(2)]
+        print(rows)
         cols = [random.randint(0, 9) for _ in range(2)]
+        print(cols)
         print(clients, non_selected_clients)
 
         for idx, c_socket in enumerate(client_sockets):
@@ -77,12 +87,18 @@ def handle_client(round_number, select_client_list_idx):
                 c_socket.send(send_row_col_data1.encode())
                 result_matrix1 = c_socket.recv(1024).decode()
                 print(result_matrix1)
+                result_number = int(result_matrix1.split(':')[-1].strip())
+                matrices[select_client_list_idx][rows[0]][cols[0]] = result_number
+                print(matrices)
             elif idx == non_selected_clients[1] - 1:
                 send_row_col_data2 = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row2, Col2: [{data_row2}], [{data_col2}]"
                 print(send_row_col_data2)
                 c_socket.send(send_row_col_data2.encode())
                 result_matrix2 = c_socket.recv(1024).decode()
                 print(result_matrix2)
+                result_number = int(result_matrix2.split(':')[-1].strip())
+                matrices[select_client_list_idx][rows[1]][cols[1]] = result_number
+                print(matrices)
 
     except Exception as e:
         e_line = f"Error: {e}"
@@ -92,9 +108,9 @@ def handle_client(round_number, select_client_list_idx):
         client_semaphore.release()
 
 
-def main():
-    global server, client_accept_cnt
+def accept_4clients_connection():
 
+    global server, client_accept_cnt
     server.listen(4)
     server.settimeout(10)
 
@@ -111,6 +127,10 @@ def main():
         client_sockets.append(client_socket)
         client_accept_cnt += 1
 
+
+def main():
+
+    accept_4clients_connection()
     clock_thread = threading.Thread(target=update_system_clock)
     clock_thread.daemon = True
     clock_thread.start()
@@ -126,8 +146,6 @@ def main():
             for thread in server_threads:
                 thread.start()
                 print(thread)
-
-            time.sleep(1) # 동시 연산
 
             for thread in server_threads:
                 thread.join()
