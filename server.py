@@ -8,7 +8,7 @@ ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
-Round_MAX = 2
+Round_MAX = 3#00
 matrices = [np.zeros((10, 10)) for _ in range(6)]
 
 MAX_CLIENTS = 4
@@ -32,7 +32,7 @@ def update_system_clock():
 
 def handle_client(round_number, select_client_list_idx):
 
-    global server, system_clock, matrices, client_semaphore
+    global server, matrices, client_semaphore
     try:
         client_semaphore.acquire()
         matrices = [np.zeros((10, 10)) for _ in range(6)]
@@ -44,7 +44,7 @@ def handle_client(round_number, select_client_list_idx):
 
         for idx, c_socket in enumerate(client_sockets):
             if idx == clients[0] - 1:
-                request_row_idx_data = f"Round {round_number}: Client {c_socket.getpeername()} - Request idx_data -> Row {rows}"
+                request_row_idx_data = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Request idx_data -> Row {rows}"
                 print(request_row_idx_data)
                 f.write(request_row_idx_data + '\n')
                 c_socket.send(request_row_idx_data.encode())
@@ -57,7 +57,7 @@ def handle_client(round_number, select_client_list_idx):
                     data_row2 = data_list[1]
 
             elif idx == clients[1] - 1:
-                request_col_idx_data = f"Round {round_number}: Client {c_socket.getpeername()} - Request idx_data -> Col {cols}"
+                request_col_idx_data = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Request idx_data -> Col {cols}"
                 print(request_col_idx_data)
                 f.write(request_col_idx_data + '\n')
                 c_socket.send(request_col_idx_data.encode())
@@ -71,19 +71,18 @@ def handle_client(round_number, select_client_list_idx):
 
         for idx, c_socket in enumerate(client_sockets):
             if idx == non_selected_clients[0] - 1:
-                send_row_col_data1 = f"Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row1, Col1: [{data_row1}], [{data_col1}]"
+                send_row_col_data1 = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row1, Col1: [{data_row1}], [{data_col1}]"
                 print(send_row_col_data1)
                 c_socket.send(send_row_col_data1.encode())
                 result_matrix1 = c_socket.recv(1024).decode()
                 print(result_matrix1)
             elif idx == non_selected_clients[1] - 1:
-                send_row_col_data2 = f"Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row2, Col2: [{data_row2}], [{data_col2}]"
+                send_row_col_data2 = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row2, Col2: [{data_row2}], [{data_col2}]"
                 print(send_row_col_data2)
                 c_socket.send(send_row_col_data2.encode())
                 result_matrix2 = c_socket.recv(1024).decode()
                 print(result_matrix2)
 
-        system_clock += 1
     except Exception as e:
         e_line = f"Error: {e}"
         print(e_line)
@@ -132,6 +131,8 @@ def main():
                 thread.start()
                 print(thread)
 
+            time.sleep(1) # 동시 연산
+
             for thread in server_threads:
                 thread.join()
                 print(thread)
@@ -156,4 +157,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
