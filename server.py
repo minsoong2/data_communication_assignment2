@@ -2,14 +2,12 @@ import socket
 import threading
 import random
 import time
-import numpy as np
-import re
 
 ip = '127.0.0.1'
 port = 8888
 
 system_clock = 0
-Round_MAX = 1#00
+Round_MAX = 3#00
 
 MAX_CLIENTS = 4
 new_procession = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -29,7 +27,7 @@ client_semaphore = threading.Semaphore(1)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind((ip, port))
-f = open("Server.txt", "w")
+f = open("Server.txt", "a")
 
 
 def update_system_clock():
@@ -41,16 +39,14 @@ def update_system_clock():
 
 def handle_client(round_number, select_client_list_idx):
 
-    global client_semaphore
+    global client_semaphore, f
     try:
         client_semaphore.acquire()
         matrices = [[line[:] for line in new_procession] for _ in range(6)]
         clients = client_list[select_client_list_idx]
         non_selected_clients = [c for c in range(1, 5) if c not in clients]
         rows = [random.randint(0, 9) for _ in range(2)]
-        print(rows)
         cols = [random.randint(0, 9) for _ in range(2)]
-        print(cols)
         print(clients, non_selected_clients)
 
         for idx, c_socket in enumerate(client_sockets):
@@ -61,6 +57,7 @@ def handle_client(round_number, select_client_list_idx):
                 c_socket.send(request_row_idx_data.encode())
                 receive_data = c_socket.recv(1024).decode()
                 print(receive_data)
+                f.write(receive_data + '\n')
                 if "Row" in receive_data:
                     data_list = receive_data.split(":")[1].strip().split(", ")
                     print("row_data_list", data_list)
@@ -74,6 +71,7 @@ def handle_client(round_number, select_client_list_idx):
                 c_socket.send(request_col_idx_data.encode())
                 receive_data2 = c_socket.recv(1024).decode()
                 print(receive_data2)
+                f.write(receive_data2 + '\n')
                 if "Col" in receive_data2:
                     data_list = receive_data2.split(":")[1].strip().split(", ")
                     print("col_data_list", data_list)
@@ -84,6 +82,7 @@ def handle_client(round_number, select_client_list_idx):
             if idx == non_selected_clients[0] - 1:
                 send_row_col_data1 = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row1, Col1: [{data_row1}], [{data_col1}]"
                 print(send_row_col_data1)
+                f.write(send_row_col_data1)
                 c_socket.send(send_row_col_data1.encode())
                 result_matrix1 = c_socket.recv(1024).decode()
                 print(result_matrix1)
@@ -94,6 +93,7 @@ def handle_client(round_number, select_client_list_idx):
                 send_row_col_data2 = f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row2, Col2: [{data_row2}], [{data_col2}]"
                 print(send_row_col_data2)
                 c_socket.send(send_row_col_data2.encode())
+                f.write(send_row_col_data2)
                 result_matrix2 = c_socket.recv(1024).decode()
                 print(result_matrix2)
                 result_number = int(result_matrix2.split(':')[-1].strip())
@@ -101,16 +101,16 @@ def handle_client(round_number, select_client_list_idx):
                 print(matrices)
 
     except Exception as e:
-        e_line = f"Error: {e}"
-        print(e_line)
-        f.write(e_line + '\n')
+        emsg = f"Error: {e}"
+        print(emsg)
+        f.write(emsg + '\n')
     finally:
         client_semaphore.release()
 
 
 def accept_4clients_connection():
 
-    global server, client_accept_cnt
+    global server, client_accept_cnt, f
     server.listen(4)
     server.settimeout(10)
 
@@ -129,6 +129,7 @@ def accept_4clients_connection():
 
 
 def main():
+    global f
 
     accept_4clients_connection()
     clock_thread = threading.Thread(target=update_system_clock)
@@ -147,6 +148,7 @@ def main():
                 thread.start()
                 print(thread)
 
+            time.sleep(1)
             for thread in server_threads:
                 thread.join()
                 print(thread)
@@ -158,15 +160,18 @@ def main():
         try:
             client_socket.close()
         except Exception as e:
-            print(f"Error while closing client socket: {e}")
+            emsg = f"Error while closing client socket: {e}"
+            print(emsg)
+            f.write(emsg + '\n')
 
     print_system_clock = f"end_time: {system_clock}"
     print(print_system_clock)
-    f.write(print_system_clock)
+    f.write(print_system_clock + '\n')
 
     server.close()
     print("Server closed...")
-    f.write("Server closed...")
+    f.write("Server closed..." + '\n')
+    f.close()
 
 
 if __name__ == "__main__":
