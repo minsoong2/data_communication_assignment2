@@ -1,12 +1,9 @@
 import socket
 import threading
 import numpy as np
-import time
 import re
 
-# server_ip = "ec2-15-164-95-106.ap-northeast-2.comp ute.amazonaws.com"
-# server_port = 55555
-server_ip = "127.0.0.1"
+server_ip = "ec2-13-125-244-225.ap-northeast-2.compute.amazonaws.com"
 server_port = 8888
 
 
