@@ -3,7 +3,9 @@ import threading
 import numpy as np
 import re
 
-server_ip = "ec2-13-125-244-225.ap-northeast-2.compute.amazonaws.com"
+# server_ip = "ec2-13-125-244-225.ap-northeast-2.compute.amazonaws.com"
+# server_port = 8888
+server_ip = '127.0.0.1'
 server_port = 8888
 
 

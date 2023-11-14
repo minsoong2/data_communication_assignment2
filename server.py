@@ -25,6 +25,7 @@ client_list = [[1, 2], [1, 3], [1, 4], [2, 3], [2, 4], [3, 4]]
 client_semaphore = threading.Semaphore(1)
 
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 server.bind((ip, port))
 f = open("Server.txt", "a")
 
@@ -179,7 +180,8 @@ def main():
     print_system_clock = f"end_time: {system_clock}"
     print(print_system_clock)
     f.write(print_system_clock + '\n')
-
+    for cs in client_sockets:
+        cs.close()
     server.close()
     print("Server closed...")
     f.write("Server closed..." + '\n')
