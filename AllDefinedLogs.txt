@@ -1,0 +1,47 @@
+[Server.py]
+
+* handle_client()
+- f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Request idx_data -> Row or Col {rows or cols}"
+ - system_clock에 어떤 round에서 특정 client_socket에게 각 행, 열 인덱스 번호가 저장된 rows or cols(0~9 중 랜덤 정수 2개)을 전송한 메시지를 Log에 작성
+- f"System Clock {system_clock}s - Round {round_number}: Client {c_socket.getpeername()} - Send data -> Row1 or Row2, Col1 or Col2: [{data_row1}], [{data_col1}]"
+ - 서버에서 특정 클라이언트에게 추출된 행, 열을 전송한 내용을 Log에 작성
+- " ".join(map(str, row))
+ - 결과 행렬에서 각 10 * 10 행렬 마다 1열 씩 Log에 작성
+- f"Error: {e}"
+ - 에러 발생 시, 해당 에러를 Log에 작성
+
+* accept_4clients_connection()
+- "Server is listening..."
+ - 서버가 클라이언트의 접속을 기다리는 상태를 Log에 작성
+- f"Accepted connection from {client_address}"
+ - {client_address}에서의 접속을 Log에 작성
+
+* main()
+- f"Error while closing client socket: {e}"
+ - 클라이언트 소켓을 종료시킬 때 발생한 에러를 Log에 작성
+- f"end_time: {system_clock}"
+ - 프로그램의 종료 시 system_clock을 Log에 작성
+- "Server closed..."
+ - 서버 프로그램이 종료되는 것을 Log에 작성
+
+[Client.py]
+
+* client()
+- if client_id in data and "Request idx_data -> Row or Col" in data: f.write(data + '\n')
+ - 서버로부터 받은 데이터에서 클라이언트 아이디와 동일한 데이터가 존재하는 경우 그리고 행 또는 열을 요구하는 경우 이를 Log에 작성
+-  f"Client {client_socket.getsockname()[1]} matrix: "
+	for line in client_matrix
+		f.write(' '.join(map(str, line)) + '\n')
+ - 특정 클라이언트에서 생성한 랜덤 행열을 Log에 작성
+- f"Client {client_socket.getsockname()[1]} - Row: {' '.join(map(str, row_data or col_data))}, {' '.join(map(str, row_data_2 or col_data2))}"
+ - 특정 클라이언트에서 추출한 행 또는 열 2개를 Log에 작성
+- elif client_id in data and "Send data -> Row1, Col1 or Row2, Col2:" in data
+	f.write(data + '\n')
+ - 서버로부터 받은 데이터가 행, 열인 경우, 이를 Log에 작성
+- result_msg_non_selected_client1 = f"{round_cid} result: {perform_vector_multiplication(row_col_1[0], row_col_1[1])}"
+  f.write(received_msg_r1_c1 + numbers_list1 + '\n')
+ - 라운드 정보와 받은 행, 열을 전달하여 행렬 곱셈의 결과를 Log에 작성
+- f"Client {client_socket.getsockname()[1]}: Connection to the server was forcibly closed."
+ - 서버로부터 접속이 끊긴 경우(고의) 이를 알리는 메시지를 Log에 작성
+- f"Client {client_socket.getsockname()[1]}: Connection closed"
+ - 특정 클라이언트의 접속이 종료된 메시지를 Log에 작성
