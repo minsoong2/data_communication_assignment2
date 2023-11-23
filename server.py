@@ -125,7 +125,7 @@ def accept_4clients_connection():
 
     global server, client_accept_cnt, f
     server.listen(4)
-    server.settimeout(10)
+    server.settimeout(30)
 
     if client_accept_cnt == 0:
         listen = "Server is listening..."
