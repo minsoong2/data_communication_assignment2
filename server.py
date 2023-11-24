@@ -180,8 +180,6 @@ def main():
     print_system_clock = f"end_time: {system_clock}"
     print(print_system_clock)
     f.write(print_system_clock + '\n')
-    for cs in client_sockets:
-        cs.close()
     server.close()
     print("Server closed...")
     f.write("Server closed..." + '\n')
