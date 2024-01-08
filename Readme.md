@@ -4,7 +4,12 @@
 
 This project implements a server-client architecture for a random calculation matching game. Clients solve arithmetic problems issued by the server in a synchronized multi-threaded environment.
 
-### Project Overview
+### 📘Due Date
+
+- Submission Deadline: November 14, 2023, 23:59
+- No late submissions will be accepted.
+
+### 📘Project Overview
 
 This assignment involves implementing a server-client system that performs matrix multiplication using multi-threading and socket communication. The system consists of one server and four clients.
 
@@ -83,11 +88,6 @@ Most unexpected errors are logged and printed in the format "Error: {e}". Specif
 Operations such as message transmission, matrix calculation, and matrix update are considered a single operation and increment the `system_clock` by 1 second. With 6 server threads running simultaneously, the round clock increases by 1 second per round.
 
 For detailed implementation and functionality, refer to the respective Python scripts and documentation provided within the source code.
-
-### 🚀Due Date
-
-- Submission Deadline: November 14, 2023, 23:59
-- No late submissions will be accepted.
 
 ### 🚀Submission Format
 
