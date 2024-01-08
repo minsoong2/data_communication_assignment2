@@ -1,4 +1,4 @@
-# 💡 Data Communications Programming Assignment - Fall 2022
+# 💡 Data Communications Programming Assignment - Fall 2023
 
 ## 🌟Multi-Thread/Process Matrix Multiplication Implementation
 
